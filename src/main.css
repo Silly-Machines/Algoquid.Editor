@@ -1,0 +1,51 @@
+body {
+    font-family: 'Open Sans', Arial, 'Segoe UI Light', 'Helvetica Neue', sans-serif;
+    padding: 0px;
+    margin: 0px;
+}
+
+header {
+    padding: 20px;
+    background: #2196f3;
+    color: white;
+}
+
+h1 {
+    font-weight: 200;
+}
+
+main.home {
+    margin: 20px 30%;
+}
+
+ul.line li {
+    display: inline;
+}
+
+ul {
+    list-style: none;
+}
+
+li.card {
+    padding: 15px;
+    border-radius: 5px;
+    background: #EFEFEF;
+    cursor: pointer;
+    margin: 20px;
+}
+
+button {
+    background: #2196f3;
+    color: white;
+    padding: 10px;
+    margin: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+nav {
+    padding: 10px 20px;
+    float: left;
+    box-shadow: 5px -1px 2px lightgray;
+}
