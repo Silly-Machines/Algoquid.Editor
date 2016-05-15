@@ -12,7 +12,7 @@ let mainWindow;
 
 function createWindow () {
 
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  mainWindow = new BrowserWindow({width: 1800, height: 1200, icon: 'res/quid.png'});
 
   mainWindow.loadURL('file://' + __dirname + '/home.html');
   mainWindow.webContents.openDevTools();
@@ -44,6 +44,22 @@ ipc.on('open-file', (event, args) => {
     })
 });
 
+ipc.on('save-file', (event, args) => {
+    dialog.showSaveDialog(args, (file) => {
+        console.log(file);
+        event.sender.send ('save-in', file);
+    })
+});
+
+let openedFile;
+
 ipc.on('load-level', (event, path) => {
-    event.sender.send ('file-opened', [path]);
+    openedFile = path;
+});
+
+ipc.on ('editor-loaded' , (event, path) => {
+    if (openedFile) {
+        event.sender.send ('file-opened', [openedFile]);
+        openedFile = undefined;
+    }
 });

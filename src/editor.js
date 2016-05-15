@@ -6,6 +6,11 @@ const fs = require('fs');
 const config = require('./config');
 
 let level = {}
+let currentFile;
+
+window.addEventListener ('load', () => {
+    ipc.send ('editor-loaded');
+});
 
 // Menu
 
@@ -26,15 +31,41 @@ document.getElementById('open').addEventListener ('click', () => {
 
 });
 
-function saveAs () {
+document.getElementById('save').addEventListener ('click', () => {
+    saveAs(currentFile);
+});
 
+document.getElementById('saveas').addEventListener ('click', () => {
+    saveAs();
+});
+
+function saveAs (path) {
+    if (!path) {
+        ipc.send ('save-file', {
+            title: 'Sauvegarder un fichier - Éditeur de niveau Algoquid',
+            filters: [
+                { name: 'Fichiers Algoquid', extensions: ['json'] },
+            ]
+        });
+    } else {
+        level.author = document.getElementById('author').value;
+        level.name = document.getElementById('name').value;
+        let difficulties = ['Easy', 'Medium', 'Hard'];
+        level.difficulty = difficulties[document.getElementById('difficulty').selectedIndex];
+
+        fs.writeFile (path, JSON.stringify(level, null, '\t'), (err) => {
+            if (err) {
+                alert ('Error : ' + err);
+            }
+        });
+    }
 }
 
 // Level loading and saving
 
 ipc.on ('file-opened', (event, files) => {
 
-    console.log(files);
+    currentFile = files[0];
 
     // add file to 'recent files' list
     let configuration = config.read();
@@ -60,9 +91,12 @@ ipc.on ('file-opened', (event, files) => {
     });
 });
 
+ipc.on ('save-in', (event, file) => {
+    saveAs (file);
+});
+
 function loadLevel (jsonLevel) {
     level = JSON.parse(jsonLevel);
-    console.log(level);
     document.getElementById('author').value = level.author;
     document.getElementById('name').value = level.name;
     let difficulty = 0;
@@ -88,6 +122,8 @@ function loadLevel (jsonLevel) {
 
 const editorWidth = 1000, editorHeight = editorWidth * 9 / 16; // pour avoir du 16/9
 
+let mousePos;
+
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(45, editorWidth / editorHeight, 0.1, 1000);
 camera.position.set(25, 3, 5);
@@ -109,7 +145,7 @@ camera.position.z = 15;
 camera.position.y = -15;
 camera.position.x = 5;
 
-scene.fog = new THREE.FogExp2 (0x0000ff, 0.00001);
+//scene.fog = new THREE.FogExp2 (0x0000ff, 0.00001);
 
 var light = new THREE.PointLight(0xffffff);
 light.position.set(0,250,0);
@@ -117,11 +153,12 @@ scene.add(light);
 var ambientLight = new THREE.AmbientLight(0x111111);
 scene.add(ambientLight);
 
-//camera.rotation.z = 2 / 3;
-//camera.rotation.x = 0.5;
-//camera.rotation.y = 0.5;
+camera.rotation.z = 2 / 3;
+camera.rotation.x = 0.5;
+camera.rotation.y = 0.5;
 
 const gridSize = 12;
+const caseSize = 1;
 
 for (let i = 0; i <= gridSize; i++) {
 
@@ -133,8 +170,8 @@ for (let i = 0; i <= gridSize; i++) {
 
     let geometry = new THREE.Geometry();
     geometry.vertices.push(
-    	new THREE.Vector3(-gridSize, -i, 0 ),
-    	new THREE.Vector3(0, -i, 0 )
+    	new THREE.Vector3(-gridSize, -i * caseSize, 0 ),
+    	new THREE.Vector3(0, -i * caseSize, 0 )
     );
 
     let line = new THREE.Line( geometry, material );
@@ -148,8 +185,8 @@ for (let i = 0; i <= gridSize; i++) {
 
     let xGeometry = new THREE.Geometry();
     xGeometry.vertices.push(
-    	new THREE.Vector3(-i, -gridSize, 0 ),
-    	new THREE.Vector3(-i, 0, 0 )
+    	new THREE.Vector3(-i * caseSize, -gridSize, 0 ),
+    	new THREE.Vector3(-i * caseSize, 0, 0 )
     );
 
     let xLine = new THREE.Line(xGeometry, xMaterial);
@@ -157,10 +194,10 @@ for (let i = 0; i <= gridSize; i++) {
 }
 
 var render = function () {
-	requestAnimationFrame(render);
+	//requestAnimationFrame(render);
 
     //camera.rotation.z += 0.005;
-    camera.position.z += 0.05;
+    //camera.position.z += 0.05;
 
 	renderer.render(scene, camera);
 };
@@ -218,15 +255,32 @@ function drawAxis () {
 }
 
 function addObject (obj) {
-    console.log ('adding ', obj, 'to scene');
     let mat = new THREE.MeshBasicMaterial({ color: 0x2196f3 });
     let geo = new THREE.BoxGeometry (1, 1, 1);
     let mesh = new THREE.Mesh(geo, mat);
 
     scene.add (mesh);
-    mesh.position.x = obj.position.x;
-    mesh.position.y = obj.position.y;
+    mesh.position.x = -((gridSize + 1) - obj.position.x - caseSize / 2);
+    mesh.position.y = -((gridSize + 1) - obj.position.z - caseSize / 2);
+    mesh.position.z = 0.5;
+    render ();
 }
+
+// from http://stackoverflow.com/a/13091694
+document.getElementById('viewer').addEventListener ('drop', (event) => {
+    event.preventDefault ();
+    console.log ('something dropped');
+    var vector = new THREE.Vector3();
+    vector.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1,
+        0.5);
+    vector.unproject( camera );
+    var dir = vector.sub( camera.position ).normalize();
+    var distance = - camera.position.z / dir.z;
+    var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+    console.log(pos);
+});
 
 drawAxis ();
 render();
