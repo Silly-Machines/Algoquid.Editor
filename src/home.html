@@ -12,10 +12,8 @@
       <main class="home">
           <div>
               <h2>Niveaux récents</h2>
-              <ul>
-                  <li class="card">Apprentissage des boucles</li>
-                  <li class="card">Apprentissage des conditions</li>
-                  <li class="card">Apprentissage des fonctions</li>
+              <ul id="recents">
+                  <p id="norecent">Aucun noveau récent, commencez par en créer un !</p>
               </ul>
           </div>
           <div>
@@ -23,9 +21,10 @@
               <ul class="line">
                   <li><button id="new">Faire un tout nouveau niveau</button></li>
                   <li>ou bien</li>
-                  <li><button>Continuer un niveau qui existe déjà ...</button></li>
+                  <li><button id="continue">Continuer un niveau qui existe déjà ...</button></li>
               </ul>
           </div>
+          <img src="res/quid.png" alt="Quid">
       </main>
       <script src="home.js"></script>
   </body>

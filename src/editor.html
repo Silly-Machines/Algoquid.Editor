@@ -7,23 +7,51 @@
     </head>
     <body>
         <header>
-            <h1>Éditeur de niveau Algoquid</h1>
+            <h1 id="title">Éditeur de niveau Algoquid</h1>
+            <button id="home">Retourner à l'accueil</button>
+            <button id="save">Enregistrer ...</button>
+            <button id="saveas">Enregistrer sous ...</button>
+            <button id="open">Ouvrir ...</button>
             <button id="launcher">Tester</button>
         </header>
-        <main>
+        <main class="flex">
             <nav>
                 <h3>Objets disponibles</h3>
-                <ul>
-                    <li>Roche rouge</li>
-                    <li>Roche orange</li>
-                    <li>Roche marron</li>
+                <ul class="objects">
+                    <li>
+                        <img src="./res/roche-rouge.png" alt="Roche rouge">
+                        Roche rouge
+                    </li>
+                    <li>
+                        <img src="./res/roche-orange.png" alt="Roche orange">
+                        Roche orange
+                    </li>
+                    <li>
+                        <img src="./res/roche-marron.png" alt="Roche marron">
+                        Roche marron
+                    </li>
                 </ul>
             </nav>
             <div id="viewer">
-                <canvas id="level">
-                    Chargement de l'éditeur ...
-                </canvas>
             </div>
+            <aside>
+                <h3>Propriétés du niveau</h3>
+                <form>
+                    <label for="name">Nom : </label>
+                    <input type="text" name="name" id="name">
+
+                    <label for="author">Auteur : </label>
+                    <input type="text" name="author" id="author">
+
+                    <label for="difficulty">Difficulté : </label>
+                    <select name="difficulty" id="difficulty">
+                        <option value="easy">Facile</option>
+                        <option value="medium">Moyen</option>
+                        <option value="hard">Difficile</option>
+                    </select>
+                </form>
+            </aside>
+
         </main>
         <script src="editor.js" charset="utf-8"></script>
     </body>
