@@ -2,6 +2,7 @@ body {
     font-family: 'Open Sans', Arial, 'Segoe UI Light', 'Helvetica Neue', sans-serif;
     padding: 0px;
     margin: 0px;
+    overflow-x: hidden;
 }
 
 header {
@@ -16,6 +17,17 @@ h1 {
 
 main.home {
     margin: 20px 30%;
+    text-align: center;
+}
+
+main.home div {
+    text-align: left;
+}
+
+main.home img {
+    margin-top: 100px;
+    max-width: 150px;
+    max-height: 150px;
 }
 
 ul.line li {
@@ -45,7 +57,44 @@ button {
 }
 
 nav {
+    padding: 10px 0px;
+    min-width: 200px;
+}
+
+nav h3 {
+    padding: 0px 20px;
+}
+
+.objects {
+    padding: 0px;
+}
+
+.objects li {
+    padding: 20px;
+    cursor: pointer;
+}
+
+.objects li:hover {
+    background: #B6B6B6;
+}
+
+.objects li img {
+    max-width: 20px;
+    max-height: 20px;
+}
+
+main.flex {
+    display: flex;
+}
+
+aside {
     padding: 10px 20px;
-    float: left;
-    box-shadow: 5px -1px 2px lightgray;
+}
+
+#viewer {
+    flex: 1;
+}
+
+form * {
+    display: block;
 }
