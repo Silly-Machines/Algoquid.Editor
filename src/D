@@ -1,0 +1,15 @@
+{
+	"name": "Atterissage",
+	"author": "ThuleMalta",
+	"difficulty": "Easy",
+	"elements": [
+		{
+			"name": "escalier",
+			"position": {
+				"x": 1,
+				"z": 1
+			},
+			"rotation": 90
+		}
+	]
+}

@@ -4,7 +4,7 @@ const fs = require('fs');
 
 module.exports = {
     write: (config) => {
-        fs.writeFile('data.json', JSON.stringify(config), {encoding: 'utf-8'});
+        fs.writeFile('data.json', JSON.stringify(config, null, '\t'), {encoding: 'utf-8'});
     },
 
     read: () => {
