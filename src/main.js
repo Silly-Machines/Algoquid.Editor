@@ -46,7 +46,6 @@ ipc.on('open-file', (event, args) => {
 
 ipc.on('save-file', (event, args) => {
     dialog.showSaveDialog(args, (file) => {
-        console.log(file);
         event.sender.send ('save-in', file);
     })
 });
@@ -61,5 +60,7 @@ ipc.on ('editor-loaded' , (event, path) => {
     if (openedFile) {
         event.sender.send ('file-opened', [openedFile]);
         openedFile = undefined;
+    } else {
+        event.sender.send ('new-level');
     }
 });

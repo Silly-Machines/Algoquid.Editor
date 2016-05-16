@@ -59,27 +59,28 @@ button {
 
 nav {
     padding: 10px 0px;
-    min-width: 200px;
+    width: 200px;
 }
 
 nav h3 {
     padding: 0px 20px;
 }
 
-.objects {
+#objects {
     padding: 0px;
+    overflow-y: scroll;
 }
 
-.objects li {
+#objects li {
     padding: 20px;
     cursor: pointer;
 }
 
-.objects li:hover {
+#objects li:hover {
     background: #B6B6B6;
 }
 
-.objects li img {
+#objects li img {
     max-width: 20px;
     max-height: 20px;
 }
@@ -90,6 +91,7 @@ main.flex {
 
 aside {
     padding: 10px 20px;
+    width: 200px;
 }
 
 #viewer {
