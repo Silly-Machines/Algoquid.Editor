@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 // code based on : http://electron.atom.io/docs/tutorial/quick-start/
 
@@ -15,9 +15,8 @@ function createWindow () {
   mainWindow = new BrowserWindow({width: 1800, height: 1200, icon: 'res/quid.png'});
 
   mainWindow.loadURL('file://' + __dirname + '/home.html');
-  mainWindow.webContents.openDevTools();
 
-  mainWindow.on('closed', function () {
+  mainWindow.on('closed', () => {
     mainWindow = null;
   })
 }
@@ -34,6 +33,16 @@ app.on('activate', function () {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+// options
+
+ipc.on ('show-options', (event, args) => {
+    let optionWindow = new BrowserWindow({width: 1200, height: 800, resizable: false, icon: 'res/quid.png'});
+    optionWindow.loadURL('file://' + __dirname + '/options.html');
+    optionWindow.on('closed', () => {
+        optionWindow = null;
+    });
 });
 
 // File dialogs

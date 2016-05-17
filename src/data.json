@@ -1,42 +1,17 @@
 {
+	"showAxis": true,
+	"autoFocusNew": false,
+	"defaultAuthor": "Bat'",
+	"gamePath": "D:\\Algoquid",
 	"recent": [
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\Exploration.json",
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\Atterrissage.json",
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\Collecte.json",
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\dnd.json",
-		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\retest.json"
+		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\retest.json",
+		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\blob.json"
 	],
 	"objects": [
-		{
-			"name": "Roche rouge",
-			"id": "redRock",
-			"icon": "res/roche-rouge.png"
-		},
-		{
-			"name": "Roche marron",
-			"id": "brownRock",
-			"icon": "res/roche-marron.png"
-		},
-		{
-			"name": "Roche orange",
-			"id": "orangeRock",
-			"icon": "res/roche-orange.png"
-		},
-		{
-			"name": "Roche rouge",
-			"id": "redRock",
-			"icon": "res/roche-rouge.png"
-		},
-		{
-			"name": "Roche marron",
-			"id": "brownRock",
-			"icon": "res/roche-marron.png"
-		},
-		{
-			"name": "Roche orange",
-			"id": "orangeRock",
-			"icon": "res/roche-orange.png"
-		},
 		{
 			"name": "Roche rouge",
 			"id": "redRock",
