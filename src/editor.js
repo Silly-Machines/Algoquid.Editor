@@ -7,17 +7,20 @@ const config = require('./config');
 
 let level = {
     name: 'Nouveau niveau',
-    author: 'Silly Machines',
+    author: config.read().defaultAuthor,
     difficulty: 'Easy',
     elements: []
 };
 let currentFile;
 
 let scene, camera, renderer;
-const editorWidth = window.innerWidth - 2 * 200, // left and right bar are of 200px
+const editorWidth = 1080, // doesn't work well window.innerWidth - 2 * 300, // left and right bar are of 200px
       editorHeight = editorWidth * 9 / 16, // to have 16/9
       gridSize = 12,
       caseSize = 1;
+let mousePos = new THREE.Vector2(),
+    raycaster = new THREE.Raycaster(),
+    selectedObj;
 
 window.addEventListener ('load', () => {
     ipc.send ('editor-loaded');
@@ -26,6 +29,11 @@ window.addEventListener ('load', () => {
 listObjects ();
 initEditor ();
 initScene ();
+
+window.addEventListener ('resize', () => {
+    var viewer = document.getElementById('viewer');
+    renderer.setSize();
+});
 
 // Menu
 
@@ -42,8 +50,6 @@ document.getElementById('open').addEventListener ('click', () => {
         ],
         property: ['openFile']
     });
-
-
 });
 
 document.getElementById('save').addEventListener ('click', () => {
@@ -52,6 +58,10 @@ document.getElementById('save').addEventListener ('click', () => {
 
 document.getElementById('saveas').addEventListener ('click', () => {
     saveAs();
+});
+
+document.getElementById('options').addEventListener('click', () => {
+    ipc.send('show-options');
 });
 
 function saveAs (path) {
@@ -63,11 +73,6 @@ function saveAs (path) {
             ]
         });
     } else {
-        level.author = document.getElementById('author').value;
-        level.name = document.getElementById('name').value;
-        let difficulties = ['Easy', 'Medium', 'Hard'];
-        level.difficulty = difficulties[document.getElementById('difficulty').selectedIndex];
-
         fs.writeFile (path, JSON.stringify(level, null, '\t'), (err) => {
             if (err) {
                 alert ('Error : ' + err);
@@ -122,20 +127,7 @@ function loadLevel (lvl) {
     initScene ();
     level = lvl;
 
-    document.getElementById('author').value = level.author;
-    document.getElementById('name').value = level.name;
-    let difficulty = 0;
-    if (level.difficulty == 'Easy') {
-        difficulty = 0;
-    } else if (level.difficulty == 'Medium') {
-        difficulty = 1;
-    } else {
-        difficulty = 2;
-    }
-    document.getElementById('difficulty').selectedIndex = difficulty;
-    let title = level.name + ' - Éditeur de niveau Algoquid';
-    document.getElementById('title').innerHTML = title;
-    window.title = title;
+    showLevelInfo();
 
     // add objects to scene
     level.elements.forEach((elem) => {
@@ -179,6 +171,7 @@ function initScene () {
     var geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
     var material = new THREE.MeshBasicMaterial( { color: 0xbe8b5b } );
     var ground = new THREE.Mesh(geometry, material);
+    ground.name = 'notSelectable';
     scene.add(ground);
 
     ground.position.x = -6;
@@ -211,6 +204,7 @@ function initScene () {
         );
 
         let line = new THREE.Line( geometry, material );
+        line.name = 'notSelectable';
         scene.add(line);
 
         // x lines
@@ -226,20 +220,22 @@ function initScene () {
         );
 
         let xLine = new THREE.Line(xGeometry, xMaterial);
+        xLine.name = 'notSelectable';
         scene.add(xLine);
     }
 
-    drawAxis ();
+    if (config.read().showAxis) {
+        drawAxis ();
+    }
     render();
 }
 
 function render () {
-    console.log ('rendering');
     //requestAnimationFrame(render);
 
-    //camera.position.z += 0.001;
 
-    console.log('rendu :', renderer.render(scene, camera));
+    //camera.position.z += 0.001;
+    renderer.render(scene, camera);
 }
 
 function drawAxis () {
@@ -303,10 +299,19 @@ function addObject (obj) {
     mesh.position.x = -((gridSize + 1) - obj.position.x - caseSize / 2);
     mesh.position.y = -((gridSize + 1) - obj.position.z - caseSize / 2);
     mesh.position.z = 0.5;
+    mesh.rotation.z = obj.rotation * 180 / Math.PI;
+    mesh.algoquidObject = obj;
+
+    if (config.read().autoFocusNew) {
+        mesh.material.color.set(0xbbdefb);
+        selectedObj = mesh;
+        showObjectInfo();
+    }
+
     render ();
 }
 
-document.getElementById('viewer').addEventListener("dragover", function (evt) {
+document.getElementById('viewer').addEventListener('dragover', function (evt) {
     evt.preventDefault();
 }, false);
 
@@ -322,19 +327,146 @@ document.getElementById('viewer').addEventListener ('drop', (event) => {
     var dir = vector.sub( camera.position ).normalize();
     var distance = - camera.position.z / dir.z;
     var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
-    console.log(pos);
-    addObject ({
-        position: {
-            x: Math.floor(gridSize + pos.x) + 1,
-            z: Math.floor(gridSize + pos.y) + 1
-        }
-    });
-    level.elements.push({
+
+    let newObj = {
         name: event.dataTransfer.getData('text'),
         position: {
             x: Math.floor(gridSize + pos.x) + 1,
             z: Math.floor(gridSize + pos.y) + 1
         },
         rotation: 0
-    });
+    };
+    addObject (newObj);
+    level.elements.push(newObj);
 });
+
+// objects edition
+
+document.getElementById('viewer').addEventListener('mousedown', (event) => {
+    mousePos.x = (event.offsetX / editorWidth) * 2 - 1;
+    mousePos.y = -(event.offsetY / editorHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mousePos, camera);
+	var intersects = raycaster.intersectObjects(scene.children);
+    if (intersects[0].object && intersects[0].object.name != 'notSelectable') {
+        if (selectedObj) {
+            selectedObj.material.color.set(0x2196f3);
+        }
+        intersects[0].object.material.color.set(0xbbdefb);
+        selectedObj = intersects[0].object;
+        showObjectInfo();
+    } else {
+        selectedObj.material.color.set(0x2196f3);
+        selectedObj = undefined;
+        showLevelInfo();
+    }
+
+    render ();
+});
+
+function showLevelInfo () {
+    var propPane = document.getElementById('properties');
+    propPane.innerHTML = `<h3>Propriétés du niveau</h3>`;
+
+    propPane.appendChild(createInput('name', 'Nom', 'text', level.name, (event) => {
+        level.name = event.target.value;
+    }));
+
+    propPane.appendChild(createInput('author', 'Auteur', 'text', level.author, (event) => {
+        level.author = event.target.value;
+    }));
+
+    let selectLabel = document.createElement('label');
+    selectLabel.innerHTML = 'Difficultée : ';
+    selectLabel.for = 'difficulties';
+
+    let select = document.createElement('select');
+    select.name = 'difficulties'
+    let difficulties = [
+        {
+            name: 'Facile',
+            id: 'Easy'
+        },{
+            name: 'Moyen',
+            id: 'Medium'
+        },{
+            name: 'Difficile',
+            id: 'Hard'
+        }];
+    difficulties.forEach((diff) => {
+        let diffOpt = document.createElement('option');
+        diffOpt.value = diff.id;
+        diffOpt.innerHTML = diff.name;
+        select.appendChild(diffOpt);
+    });
+
+    select.addEventListener('change', (event) => {
+        level.difficulty = event.target.value;
+    });
+
+    let container = document.createElement('div');
+    container.appendChild(selectLabel);
+    container.appendChild(select);
+    propPane.appendChild(container);
+}
+
+function showObjectInfo () {
+    var propPane = document.getElementById('properties');
+    propPane.innerHTML = `<h3>Propriétés de l'objet «${selectedObj.algoquidObject.name}»</h3>`; // un peu sale ... :-°
+
+    propPane.appendChild(createInput('name', 'Identifiant', 'text', selectedObj.algoquidObject.name, (event) => {
+        selectedObj.algoquidObject.name = event.target.value;
+    }));
+
+    propPane.appendChild(createInput('posx', 'Position X', 'number', selectedObj.algoquidObject.position.x, (event) => {
+        let newVal = new Number(event.target.value);
+        selectedObj.position.x = -((gridSize + 1) - newVal - caseSize / 2);
+        render();
+    }));
+
+    propPane.appendChild(createInput('posy', 'Position Y', 'number', selectedObj.algoquidObject.position.z, (event) => {
+        let newVal = new Number(event.target.value);
+        selectedObj.position.y = -((gridSize + 1) - newVal - caseSize / 2);
+        render();
+    }));
+
+    propPane.appendChild(createInput('rotation', 'Rotation', 'number', selectedObj.algoquidObject.rotation, (event) => {
+        let newVal = new Number(event.target.value);
+        newVal = newVal * Math.PI / 180
+        selectedObj.rotation.z = newVal;
+        selectedObj.algoquidObject.rotation = newVal;
+        render();
+    }));
+}
+
+function createInput (name, title, type, defValue, change) {
+    if (!name) {
+        return;
+    }
+    var label = document.createElement('label');
+    label.for = name;
+    if (title) {
+        label.innerHTML = title + ' : ';
+    } else {
+        label.innerHTML = name + ' : ';
+    }
+
+    var input = document.createElement('input');
+    input.type = type ? type : 'text';
+    input.id = name;
+    input.name = name;
+
+    if (defValue || defValue == 0) {
+        input.value = defValue;
+    }
+
+    if (change) {
+        input.addEventListener('change', change);
+    }
+
+    var container = document.createElement('div');
+    container.appendChild(label);
+    container.appendChild(input);
+
+    return container;
+}

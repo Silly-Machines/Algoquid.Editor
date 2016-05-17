@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="main.css">
+        <title>Options - Éditeur de niveau Algoquid</title>
+    </head>
+    <body>
+        <header>
+            <h1 id="title">Options - Éditeur de niveau Algoquid</h1>
+        </header>
+        <main class="options">
+            <h2>Vue 3D</h2>
+            <div>
+                <input type="checkbox" name="showaxis" id="showaxis">
+                <label for="showAxis">Afficher les axes</label>
+            </div>
+            <div>
+                <input type="checkbox" name="autoFocus" id="autoFocus">
+                <label for="autoFocus">Sélectionner automatiquement les nouveaux éléments</label>
+            </div>
+            <h2>Autres</h2>
+            <div>
+                <label for="author">Auteur par défaut : </label>
+                <input type="text" name="author" id="author">
+            </div>
+            <div>
+                <label for="gamePath">Chemin du jeu : </label>
+                <input type="text" name="gamePath" id="gamePath" title="Sera utilisé pour installer automatiquement vos packages et les tester facilement">
+            </div>
+        </main>
+        <footer>
+            <button id="ok">Valider</button>
+            <button id="cancel">Annuler</button>
+        </footer>
+        <script src="options.js" charset="utf-8"></script>
+    </body>
+</html>

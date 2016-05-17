@@ -59,7 +59,7 @@ button {
 
 nav {
     padding: 10px 0px;
-    width: 200px;
+    width: 300px;
 }
 
 nav h3 {
@@ -91,13 +91,33 @@ main.flex {
 
 aside {
     padding: 10px 20px;
-    width: 200px;
+    width: 300px;
+    padding-left: 100px;
 }
 
 #viewer {
     flex: 1;
 }
 
-form * {
+aside div * {
     display: block;
+}
+
+aside div label {
+    margin-top: 15px;
+}
+
+/* options */
+
+main.options {
+    margin: 20px 20%;
+}
+
+footer {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    text-align: right;
+    background: #2196f3;
 }
