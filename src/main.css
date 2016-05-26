@@ -31,10 +31,6 @@ main.home img {
     max-height: 150px;
 }
 
-ul.line li {
-    display: inline;
-}
-
 ul {
     list-style: none;
 }
@@ -99,7 +95,7 @@ aside {
     flex: 1;
 }
 
-aside div * {
+aside *, aside div * {
     display: block;
 }
 
@@ -120,4 +116,22 @@ footer {
     right: 0px;
     text-align: right;
     background: #2196f3;
+}
+
+.block * {
+    display: block;
+}
+
+.block label {
+    margin-top: 20px;
+}
+
+.warn {
+    background: #FF5252 !important;
+    color: white;
+    cursor: default !important;
+}
+
+select[multiple] {
+    width: 300px;
 }

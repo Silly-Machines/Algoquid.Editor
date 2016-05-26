@@ -1,12 +1,8 @@
-'use strict';
-
 const ipc = require('electron').ipcRenderer;
 const fs = require('fs');
 const config = require('./config');
 
-let newLevelBt = document.getElementById('new');
-
-newLevelBt.addEventListener('click', () => {
+document.getElementById('new').addEventListener('click', () => {
     window.location = 'editor.html';
 });
 
@@ -20,6 +16,10 @@ document.getElementById('continue').addEventListener('click', () => {
         ],
         property: ['openFile']
     });
+});
+
+document.getElementById('pack').addEventListener('click', () => {
+    window.location = 'packager.html';
 });
 
 let recents = config.read().recent;

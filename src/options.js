@@ -1,6 +1,7 @@
 'use strict';
 
 const config = require ('./config');
+const ipc = require('electron').ipcRenderer;
 let conf = config.read();
 
 window.addEventListener('load', () => {
@@ -34,6 +35,18 @@ document.getElementById('ok').addEventListener('click', () => {
     close();
 });
 
-document.getElementById('cancel', () => {
+document.getElementById('cancel').addEventListener('click', () => {
     close();
+});
+
+document.getElementById('explore').addEventListener('click', () => {
+    ipc.send('open-file', {
+        title: 'Chemin du jeu - Éditeur de niveau Algoquid',
+        properties: ['openDirectory']
+    });
+});
+
+ipc.on ('file-opened', (event, files) => {
+    document.getElementById('gamePath').value = files[0];
+    conf.gamePath = files[0];
 });

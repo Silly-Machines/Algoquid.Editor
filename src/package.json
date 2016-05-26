@@ -1,5 +1,8 @@
 {
-    "name": "Algoquid Editor",
-    "version": "0.0.1",
-    "main": "main.js"
+  "name": "Algoquid-Editor",
+  "version": "0.0.1",
+  "main": "main.js",
+  "dependencies": {
+    "jszip": "^3.0.0"
+  }
 }

@@ -2,14 +2,15 @@
 	"showAxis": true,
 	"autoFocusNew": false,
 	"defaultAuthor": "Bat'",
-	"gamePath": "D:\\Algoquid",
+	"gamePath": "D:\\Telechargements\\DefaultResources\\Levels\\Algoquid",
 	"recent": [
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\Exploration.json",
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\Atterrissage.json",
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\Collecte.json",
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\dnd.json",
 		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\retest.json",
-		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\blob.json"
+		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\blob.json",
+		"D:\\Telechargements\\DefaultResources\\Levels\\Algoquid\\veryHard.json"
 	],
 	"objects": [
 		{

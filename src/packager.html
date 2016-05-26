@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="main.css">
+        <title>Empaqueter - Éditeur de niveau Algoquid</title>
+    </head>
+    <body>
+        <header>
+            <h1 id="title">Empaqueter - Éditeur de niveau Algoquid</h1>
+        </header>
+        <main class="home">
+            <div>
+                <h3>Niveaux du pack</h3>
+                <ul id="levels">
+                    <li class="card warn">Placez les fichiers dans l'ordre dans lequel ils seront présents dans le jeu ! </li>
+                    <li class="card" id="add"><strong> + </strong> Ajouter un niveau</li>
+                </ul>
+            </div>
+            <div class="block">
+                <h3>Options du pack</h3>
+
+                <label for="name">Nom : </label>
+                <input type="text" name="name" id="name">
+
+                <label for="author">Auteur : </label>
+                <input type="text" name="author" id="author">
+
+                <label for="desc">Description : </label>
+                <textarea name="desc" id="desc"></textarea
+
+                <label for="diff">Difficultée générale : </label>
+                <select name="diff" id="diff">
+                    <option value="Easy">Facile</option>
+                    <option value="Medium">Moyen</option>
+                    <option value="Hard">Difficile</option>
+                </select>
+            </div>
+            <div>
+                <button id="cancel">Annuler</button>
+                <button id="ok">Créer le pack</button>
+            </div>
+        </main>
+        <script src="packager.js" charset="utf-8"></script>
+    </body>
+</html>
