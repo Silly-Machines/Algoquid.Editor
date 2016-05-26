@@ -1,5 +1,3 @@
-'use strict';
-
 const THREE = require('./lib/three');
 const ipc = require('electron').ipcRenderer;
 const fs = require('fs');
@@ -9,15 +7,19 @@ let level = {
     name: 'Nouveau niveau',
     author: config.read().defaultAuthor,
     difficulty: 'Easy',
-    elements: []
+    elements: [],
+    objectives: {
+        position: {},
+        inventory: []
+    }
 };
 let currentFile;
 
 let scene, camera, renderer;
 const editorWidth = 1080, // doesn't work well window.innerWidth - 2 * 300, // left and right bar are of 200px
       editorHeight = editorWidth * 9 / 16, // to have 16/9
-      gridSize = 12,
       caseSize = 1;
+let gridSize = 12;
 let mousePos = new THREE.Vector2(),
     raycaster = new THREE.Raycaster(),
     selectedObj;
@@ -48,7 +50,7 @@ document.getElementById('open').addEventListener ('click', () => {
             { name: 'Fichiers Algoquid', extensions: ['json'] },
             { name: 'Tous les fichiers', extensions: ['*'] }
         ],
-        property: ['openFile']
+        properties: ['openFile']
     });
 });
 
@@ -92,7 +94,6 @@ ipc.on('new-level', () => {
 });
 
 ipc.on ('file-opened', (event, files) => {
-
     currentFile = files[0];
 
     // add file to 'recent files' list
@@ -120,7 +121,9 @@ ipc.on ('file-opened', (event, files) => {
 });
 
 ipc.on ('save-in', (event, file) => {
-    saveAs (file);
+    if (file) {
+        saveAs (file);
+    }
 });
 
 function loadLevel (lvl) {
@@ -148,7 +151,7 @@ function listObjects () {
         container.innerHTML += obj.name;
         container.draggable = true;
         container.addEventListener('dragstart', (event) => {
-            event.dataTransfer.setDragImage(img, 0, 0);
+            event.dataTransfer.setDragImage(img, 1000000, 1000000);
             event.dataTransfer.setData('text/plain', obj.id);
         });
         document.getElementById('objects').appendChild(container);
@@ -168,6 +171,11 @@ function initEditor () {
 }
 
 function initScene () {
+    for (let child of scene.children) {
+        scene.remove(child);
+    }
+
+
     var geometry = new THREE.PlaneGeometry(100, 100, 1, 1);
     var material = new THREE.MeshBasicMaterial( { color: 0xbe8b5b } );
     var ground = new THREE.Mesh(geometry, material);
@@ -231,10 +239,6 @@ function initScene () {
 }
 
 function render () {
-    //requestAnimationFrame(render);
-
-
-    //camera.position.z += 0.001;
     renderer.render(scene, camera);
 }
 
@@ -309,6 +313,7 @@ function addObject (obj) {
     }
 
     render ();
+    return mesh;
 }
 
 document.getElementById('viewer').addEventListener('dragover', function (evt) {
@@ -376,6 +381,13 @@ function showLevelInfo () {
         level.author = event.target.value;
     }));
 
+    propPane.appendChild(createInput('size', 'Dimensions', 'number', level.size, (event) => {
+        let size = new Number(event.target.value);
+        level.size = size;
+        gridSize = size;
+        initScene();
+    }));
+
     let selectLabel = document.createElement('label');
     selectLabel.innerHTML = 'Difficultée : ';
     selectLabel.for = 'difficulties';
@@ -400,6 +412,10 @@ function showLevelInfo () {
         select.appendChild(diffOpt);
     });
 
+    select.selectedIndex = difficulties.findIndex((elt) => {
+        return elt.id == level.difficulty;
+    });
+
     select.addEventListener('change', (event) => {
         level.difficulty = event.target.value;
     });
@@ -408,12 +424,96 @@ function showLevelInfo () {
     container.appendChild(selectLabel);
     container.appendChild(select);
     propPane.appendChild(container);
+
+    // objectives
+
+    let h3Objectives = document.createElement('h3');
+    h3Objectives.innerHTML = 'Objectifs';
+    propPane.appendChild(h3Objectives);
+
+    let info = document.createElement('p');
+    info.innerHTML = 'Laissez des valeurs vides (ou négatives) pour ne pas demander ces objetcifs.';
+    propPane.appendChild(info);
+
+    propPane.appendChild(createInput('posx', 'Position X', 'number', level.objectives.position.x, (event) => {
+        if (event.target.value && event.target.value >= 0) {
+            level.objectives.position.x = event.target.value;
+        } else {
+            level.objectives.position.x = undefined;
+        }
+    }));
+
+    propPane.appendChild(createInput('posy', 'Position Y', 'number', level.objectives.position.z, (event) => {
+        if (event.target.value && event.target.value >= 0) {
+            level.objectives.position.z = event.target.value;
+        } else {
+            level.objectives.position.z = undefined;
+        }
+    }));
+
+    // inventory
+
+    let invList = document.createElement('select');
+    invList.name = 'inv';
+    invList.multiple = true;
+
+    let objName = createInput('objname', 'Nom de l\'item', 'text', null, (event) => {
+        let count = new Number(document.getElementById('objcount').value);
+        level.objectives.inventory[invList.selectedIndex] = {
+            id: event.target.value,
+            count: count
+        };
+        invList.options[invList.selectedIndex].innerHTML = event.target.value + ' - ' + count;
+    });
+
+    let objCount = createInput('objcount', 'Nombre minimum à avoir', 'number', null, (event) => {
+        let name = document.getElementById('objname').value;
+        level.objectives.inventory[invList.selectedIndex] = {
+            id: name,
+            count: new Number(event.target.value)
+        };
+        invList.options[invList.selectedIndex].innerHTML = name + ' - ' + event.target.value;
+    });
+
+    let invLabel = document.createElement('h4');
+    invLabel.innerHTML = 'Inventaire : ';
+
+    let addInvObjective = (name, count) => {
+        let opt = document.createElement('option');
+        opt.innerHTML = `${name} - ${count}`;
+        invList.appendChild(opt);
+        invList.selectedIndex = invList.length - 1;
+        invList.focus();
+        invList.dispatchEvent(new Event('change'));
+    };
+
+    let newInv = document.createElement('button');
+    newInv.innerHTML = 'Ajouter';
+    newInv.addEventListener('click', () => addInvObjective('Inconnu', 0));
+
+    level.objectives.inventory.forEach((objectif) => {
+        addInvObjective(objectif.id, objectif.count);
+    });
+
+    invList.addEventListener('change', () => {
+        let currOpt = invList.options[invList.selectedIndex];
+        let match;
+        if (match = currOpt.innerHTML.match(/^(.*) - (.*)/)) {
+            document.getElementById('objname').value = match[1];
+            document.getElementById('objcount').value = new Number(match[2]);
+        }
+    });
+
+    propPane.appendChild(invLabel);
+    propPane.appendChild(invList);
+    propPane.appendChild(objName);
+    propPane.appendChild(objCount);
+    propPane.appendChild(newInv);
 }
 
 function showObjectInfo () {
     var propPane = document.getElementById('properties');
     propPane.innerHTML = `<h3>Propriétés de l'objet «${selectedObj.algoquidObject.name}»</h3>`; // un peu sale ... :-°
-
     propPane.appendChild(createInput('name', 'Identifiant', 'text', selectedObj.algoquidObject.name, (event) => {
         selectedObj.algoquidObject.name = event.target.value;
     }));
@@ -437,6 +537,17 @@ function showObjectInfo () {
         selectedObj.algoquidObject.rotation = newVal;
         render();
     }));
+
+    let delBt = document.createElement('button');
+    delBt.innerHTML = 'Supprimer cet élément';
+    delBt.addEventListener('click', () => {
+        console.log('clicked');
+        scene.remove(selectedObj);
+        selectedObj.algoquidObject = undefined;
+        render();
+        showLevelInfo();
+    });
+    propPane.appendChild(delBt);
 }
 
 function createInput (name, title, type, defValue, change) {
