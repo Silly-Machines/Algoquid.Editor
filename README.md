@@ -15,4 +15,4 @@ cd src
 electron .
 ```
 
-Il faudra que vous ayez au préalable installé [Electron](electron.atom.io).
+Il faudra que vous ayez au préalable installé [Electron](http://electron.atom.io).
